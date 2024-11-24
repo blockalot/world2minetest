@@ -123,8 +123,6 @@ local function bytes2int(str, signed) -- little endian
     return n
 end
 
-local modpath = minetest.get_modpath(minetest.get_current_modname())
-
 local function get_layers(x, z)
     x = x + offset_x
     z = z + offset_z
@@ -136,7 +134,7 @@ local function get_layers(x, z)
 end
 
 local function load_map_file()
-    local path = modpath .. "/" .. "map.dat"
+    local path = 'mod_storage' .. "/" .. "map.dat"
     minetest.log("[w2mt] Loading map.dat from " .. path)
     local file = io.open(path, "rb")
 

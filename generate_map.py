@@ -2,6 +2,7 @@ import argparse
 import json
 import random
 import zlib
+import argparse
 
 import numpy as np
 import skimage.draw
@@ -60,6 +61,7 @@ parser.add_argument("--noheightreduction", action="store_true", help="Do not sub
 parser.add_argument("--flat", action="store_true", help="If a --heightmap is specified, make the world flat, but subtract the heightmap value from each building coordinate")
 parser.add_argument("--createimg", action="store_true", help="Create a .png visualization of every layer")
 parser.add_argument("--verbose", "-v", action="store_true", help="More debug info")
+parser.add_argument("--output", "-o", type=argparse.FileType("wb"), help="Output file. Defaults to world2minetest/map.dat", default="world2minetest/map.dat")
 
 args = parser.parse_args()
 
@@ -339,11 +341,12 @@ for deco, decorations in features["decorations"].items():
 
 offset_x = args.offsetx-min_x if args.offsetx is not None else 0
 offset_z = args.offsetz-min_y if args.offsetz is not None else 0
+out = args.output
 
 print("offset x:", offset_x, "offset z:", offset_z)
 
 if args.incr:
-    with open("world2minetest/map.dat", "rb") as f:
+    with open(out, "rb") as f:
         version = from_bytes(f.read(1))
         min_version = from_bytes(f.read(1))
         if min_version > 1:
@@ -390,7 +393,7 @@ else:
     changed_blocks = b""
 
 
-with open("world2minetest/map.dat", "wb") as f:
+with open(out, "wb") as f:
     f.write(to_bytes(1, 1))  # version
     f.write(to_bytes(1, 1))  # minimum compatible version
     f.write(to_bytes(LAYER_COUNT, 1))
