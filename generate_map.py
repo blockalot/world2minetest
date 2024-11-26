@@ -61,7 +61,7 @@ parser.add_argument("--noheightreduction", action="store_true", help="Do not sub
 parser.add_argument("--flat", action="store_true", help="If a --heightmap is specified, make the world flat, but subtract the heightmap value from each building coordinate")
 parser.add_argument("--createimg", action="store_true", help="Create a .png visualization of every layer")
 parser.add_argument("--verbose", "-v", action="store_true", help="More debug info")
-parser.add_argument("--output", "-o", type=argparse.FileType("wb"), help="Output file. Defaults to world2minetest/map.dat", default="world2minetest/map.dat")
+parser.add_argument("--output", "-o", type=str, help="Output file. Defaults to world2minetest/map.dat", default="world2minetest/map.dat")
 
 args = parser.parse_args()
 
