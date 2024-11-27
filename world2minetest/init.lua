@@ -134,7 +134,7 @@ local function get_layers(x, z)
 end
 
 local function load_map_file()
-    local path = "map.dat"
+    local path =  core.get_worldpath() .. "/" .. "mod_storage" .. "/" .. "map.dat"
     minetest.log("[w2mt] Loading map.dat from " .. path)
     local file = io.open(path, "rb")
 
