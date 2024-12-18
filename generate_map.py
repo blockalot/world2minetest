@@ -250,7 +250,10 @@ else:
         ground_z = int(round(a[yy, xx, 0].mean()))
         assert 0 <= ground_z <= 255
         a[yy, xx, 0] = ground_z
-        a[yy, xx, 2] = 127 + ground_z + 1
+        if ground_z >= 128:
+            a[yy, xx, 2] = min(ground_z, ground_z + 127)
+        else:
+            a[yy, xx, 2] = 127 + ground_z + 1
         if height is not None and building.get("is_part"):
             # only overwrite height if it is likely from the same building
             assert height >= 1
