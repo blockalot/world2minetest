@@ -247,6 +247,9 @@ else:
             height = building.get("levels")
             if height is not None:
                 height *= 3
+            else:
+                # default to a building with 2 levels
+                height = 6
         ground_z = int(round(a[yy, xx, 0].mean()))
         assert 0 <= ground_z <= 255
         a[yy, xx, 0] = ground_z
