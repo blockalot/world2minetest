@@ -1,6 +1,7 @@
 import argparse
 import orjson
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 
 from pyproj import CRS, Transformer
 
@@ -35,7 +36,7 @@ def node_ids_to_node_positions(node_ids):
     return x_coords, y_coords
 
 
-data = orjson.load(args.file)
+data = orjson.loads(args.file.read())
 
 
 min_x = None
@@ -50,86 +51,17 @@ def update_min_max(x_coords, y_coords):
     min_y = min(y_coords) if min_y is None else min(min_y, *y_coords)
     max_y = max(y_coords) if max_y is None else max(max_y, *y_coords)
 
-
-highways = []
-buildings = []
-areas = []
-barriers = []
-nodes = []
-
-# sort elements by type (highway, building, area or node)
-for e in data["elements"]:
-    t = e["type"]
-    tags = e.get("tags")
-    if t == "way":
-        if not tags:
-            print_element("Ignored, missing tags:", e)
-            continue
-        if "area" in tags:
-            areas.append(e)
-        elif "highway" in tags:
-            highways.append(e)
-        elif "building" in tags or "building:part" in tags:
-            buildings.append(e)
-        elif "barrier" in tags:
-            barriers.append(e)
-        else:
-            areas.append(e)
-    elif t == "node":
-        blockpos = get_nodepos(e["lat"], e["lon"])
-        node_id_to_blockpos[e["id"]] = blockpos
-        if tags and ("natural" in tags or "amenity" in tags or "barrier" in tags):
-            nodes.append(e)
+def process_barrier(barrier):
+    if barrier["tags"]["barrier"] in DECORATIONS:
+        deco = barrier["tags"]["barrier"]
     else:
-        print(f"Ignoring element with unknown type '{t}'")
-
-
-res_areas = []
-res_buildings = []
-res_decorations = defaultdict(list)
-res_highways = []
-
-
-print("Processing AREAS...")
-for area in areas:
-    tags = area["tags"]
-    surface = None
-    if "surface" in tags and tags["surface"] in SURFACES:
-        surface = tags["surface"]
-    elif "natural" in tags:
-        if tags["natural"] == "water":
-            surface = "water"
-        else:
-            surface = "natural"
-    elif "amenity" in tags:
-        if tags["amenity"] in SURFACES:
-            surface = tags["amenity"]
-        else:
-            surface = "amenity"
-    elif "leisure" in tags:
-        if tags["leisure"] in SURFACES:
-            surface = tags["leisure"]
-        else:
-            surface = "leisure"
-    elif "landuse" in tags:
-        if tags["landuse"] == "residential":
-            surface = "residential_landuse"  # "residential" is also a highway type
-        elif tags["landuse"] == "reservoir":
-            surface = "water"
-        elif tags["landuse"] in SURFACES:
-            surface = tags["landuse"]
-        else:
-            surface = "landuse"
-    if surface is None:
-        print_element("Ignored, could not determine surface:", area)
-        continue
-    x_coords, y_coords = node_ids_to_node_positions(area["nodes"])
+        deco = "barrier"
+        print_element("Default barrier:", barrier)
+    x_coords, y_coords = node_ids_to_node_positions(barrier["nodes"])
     update_min_max(x_coords, y_coords)
-    res_areas.append({"x": x_coords, "y": y_coords, "surface": surface})
+    res_decorations[deco].append({"x": x_coords, "y": y_coords})
 
-
-print("Processing BUILDINGS...")
-for building in buildings:
+def process_building(building):
     x_coords, y_coords = node_ids_to_node_positions(building["nodes"])
     if len(x_coords) < 2:
         print_element(f"Ignored, only {len(x_coords)} nodes:", building)
@@ -160,21 +92,43 @@ for building in buildings:
         b["material"] = material
     res_buildings.append(b)
 
-
-print("Processing BARRIERS...")
-for barrier in barriers:
-    if barrier["tags"]["barrier"] in DECORATIONS:
-        deco = barrier["tags"]["barrier"]
-    else:
-        deco = "barrier"
-        print_element("Default barrier:", barrier)
-    x_coords, y_coords = node_ids_to_node_positions(barrier["nodes"])
+def process_area(area):
+    tags = area["tags"]
+    surface = None
+    if "surface" in tags and tags["surface"] in SURFACES:
+        surface = tags["surface"]
+    elif "natural" in tags:
+        if tags["natural"] == "water":
+            surface = "water"
+        else:
+            surface = "natural"
+    elif "amenity" in tags:
+        if tags["amenity"] in SURFACES:
+            surface = tags["amenity"]
+        else:
+            surface = "amenity"
+    elif "leisure" in tags:
+        if tags["leisure"] in SURFACES:
+            surface = tags["leisure"]
+        else:
+            surface = "leisure"
+    elif "landuse" in tags:
+        if tags["landuse"] == "residential":
+            surface = "residential_landuse"  # "residential" is also a highway type
+        elif tags["landuse"] == "reservoir":
+            surface = "water"
+        elif tags["landuse"] in SURFACES:
+            surface = tags["landuse"]
+        else:
+            surface = "landuse"
+    if surface is None:
+        print_element("Ignored, could not determine surface:", area)
+        return
+    x_coords, y_coords = node_ids_to_node_positions(area["nodes"])
     update_min_max(x_coords, y_coords)
-    res_decorations[deco].append({"x": x_coords, "y": y_coords})
+    res_areas.append({"x": x_coords, "y": y_coords, "surface": surface})
 
-
-print("Processing HIGHWAYS...")
-for highway in highways:
+def process_highway(highway):
     tags = highway["tags"]
 
     if tags["highway"] in SURFACES:
@@ -205,18 +159,15 @@ for highway in highways:
     update_min_max(x_coords, y_coords)
     res_highways.append({"x": x_coords, "y": y_coords, "surface": surface, "layer": layer, "type": tags["highway"]})
 
-
-# NODES
-for node in nodes:
+def process_node(node):
     tags = node["tags"]
-    id_ = None
-    height = 1
+
     if "natural" in tags:
         if tags["natural"] in DECORATIONS:
             deco = tags["natural"]
         else:
             print_element("Unrecognized natural node:", node)
-            continue
+            return
     elif "amenity" in tags and tags["amenity"] in DECORATIONS:
         deco = tags["amenity"]
     elif "barrier" in tags:
@@ -227,14 +178,48 @@ for node in nodes:
             print_element("Default barrier:", node)
     else:
         print_element("Ignored, could not determine decoration type:", node)
-        continue
+        return
     x, y = get_nodepos(node["lat"], node["lon"])
     update_min_max([x], [y])
     res_decorations[deco].append({"x": x, "y": y})
 
-print(f"\nfrom {min_x},{min_y} to {max_x},{max_y} (size: {max_x-min_x+1},{max_y-min_y+1})")
+def process_element(e):
+    t = e["type"]
+    tags = e.get("tags")
+    if t == "way":
+        if not tags:
+            print_element("Ignored, missing tags:", e)
+            return
+        if "area" in tags:
+            process_area(e)
+        elif "highway" in tags:
+            process_highway(e)
+        elif "building" in tags or "building:part" in tags:
+            process_building(e)
+        elif "barrier" in tags:
+            process_barrier(e)
+        else:
+            process_area(e)
+    elif t == "node":
+        blockpos = get_nodepos(e["lat"], e["lon"])
+        node_id_to_blockpos[e["id"]] = blockpos
+        if tags and ("natural" in tags or "amenity" in tags or "barrier" in tags):
+            process_node(e)
+    else:
+        print(f"Ignoring element with unknown type '{t}'")
 
-orjson.dump({
+
+res_areas = []
+res_buildings = []
+res_decorations = defaultdict(list)
+res_highways = []
+
+
+with ThreadPoolExecutor() as executor:
+    executor.map(process_element, data["elements"])
+    print(f"\nfrom {min_x},{min_y} to {max_x},{max_y} (size: {max_x-min_x+1},{max_y-min_y+1})")
+
+output_data = orjson.dumps({
     "min_x": min_x,
     "max_x": max_x,
     "min_y": min_y,
@@ -243,4 +228,7 @@ orjson.dump({
     "buildings": res_buildings,
     "decorations": res_decorations,
     "highways": res_highways
-}, args.output, indent=2)
+}, option=orjson.OPT_INDENT_2)  # Pretty-print with indentation
+
+# Write the serialized byte string to the output file
+args.output.write(output_data.decode("utf-8"))
