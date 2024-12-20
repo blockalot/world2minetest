@@ -240,6 +240,11 @@ with ThreadPoolExecutor() as executor:
     res_buildings = []
     res_decorations = defaultdict(list)
     res_highways = []
+    # We need to process nodes first to know the positions of the different node blocks
+    # stored in node_id_to_blockpos
+    # possible alternative: sort data['elements'] so that all nodes appear first
+    # then process everything in one iteration through data['elements']
+    # but: is that really more efficient?
     executor.map(process_node, data["elements"])
     executor.map(process_element, data["elements"])
 print('res_areas', res_areas)
