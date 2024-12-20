@@ -1,7 +1,8 @@
 import argparse
 import orjson
-from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
+import threading
+from collections import defaultdict
 
 from pyproj import CRS, Transformer
 
@@ -12,6 +13,12 @@ parser.add_argument("file", type=argparse.FileType("r", encoding="utf-8"), help=
 parser.add_argument("--output", "-o", type=argparse.FileType("w"), help="Output file. Defaults to parsed_data/features_osm.json", default="./parsed_data/features_osm.json")
 
 args = parser.parse_args()
+
+# thread locks for the different lists to enable parallelization without concurrency conflicts
+areas_lock = threading.Lock()
+buildings_lock = threading.Lock()
+decorations_lock = threading.Lock()
+highways_lock = threading.Lock()
 
 # transform EPSG:4326 to EPSG:25832
 transform_coords = Transformer.from_crs(CRS.from_epsg(4326), CRS.from_epsg(25832)).transform
@@ -59,7 +66,8 @@ def process_barrier(barrier):
         print_element("Default barrier:", barrier)
     x_coords, y_coords = node_ids_to_node_positions(barrier["nodes"])
     update_min_max(x_coords, y_coords)
-    res_decorations[deco].append({"x": x_coords, "y": y_coords})
+    with decorations_lock:
+        res_decorations[deco].append({"x": x_coords, "y": y_coords})
 
 def process_building(building):
     x_coords, y_coords = node_ids_to_node_positions(building["nodes"])
@@ -90,7 +98,9 @@ def process_building(building):
         b["levels"] = levels
     if material is not None:
         b["material"] = material
-    res_buildings.append(b)
+    
+    with buildings_lock:
+        res_buildings.append(b)
 
 def process_area(area):
     tags = area["tags"]
@@ -124,9 +134,14 @@ def process_area(area):
     if surface is None:
         print_element("Ignored, could not determine surface:", area)
         return
+    print('success!')
     x_coords, y_coords = node_ids_to_node_positions(area["nodes"])
+    print('test2')
     update_min_max(x_coords, y_coords)
-    res_areas.append({"x": x_coords, "y": y_coords, "surface": surface})
+    print('test3')
+
+    with areas_lock:
+        res_areas.append({"x": x_coords, "y": y_coords, "surface": surface})
 
 def process_highway(highway):
     tags = highway["tags"]
@@ -157,16 +172,24 @@ def process_highway(highway):
 
     x_coords, y_coords = node_ids_to_node_positions(highway["nodes"])
     update_min_max(x_coords, y_coords)
-    res_highways.append({"x": x_coords, "y": y_coords, "surface": surface, "layer": layer, "type": tags["highway"]})
+    with highways_lock:
+        res_highways.append({"x": x_coords, "y": y_coords, "surface": surface, "layer": layer, "type": tags["highway"]})
 
-def process_node(node):
-    tags = node["tags"]
+def process_node(e):
+    t = e["type"]
+    if t != 'node':
+        return
+    blockpos = get_nodepos(e["lat"], e["lon"])
+    node_id_to_blockpos[e["id"]] = blockpos
+    tags = e["tags"]
 
+    if not tags or ("natural" not in tags and "amenity" not in tags and "barrier" not in tags):
+        return
     if "natural" in tags:
         if tags["natural"] in DECORATIONS:
             deco = tags["natural"]
         else:
-            print_element("Unrecognized natural node:", node)
+            print_element("Unrecognized natural node:", e)
             return
     elif "amenity" in tags and tags["amenity"] in DECORATIONS:
         deco = tags["amenity"]
@@ -175,13 +198,14 @@ def process_node(node):
             deco = tags["barrier"]
         else:
             deco = "barrier"
-            print_element("Default barrier:", node)
+            print_element("Default barrier:", e)
     else:
-        print_element("Ignored, could not determine decoration type:", node)
+        print_element("Ignored, could not determine decoration type:", e)
         return
-    x, y = get_nodepos(node["lat"], node["lon"])
+    x, y = get_nodepos(e["lat"], e["lon"])
     update_min_max([x], [y])
-    res_decorations[deco].append({"x": x, "y": y})
+    with decorations_lock:
+        res_decorations[deco].append({"x": x, "y": y})
 
 def process_element(e):
     t = e["type"]
@@ -200,33 +224,35 @@ def process_element(e):
             process_barrier(e)
         else:
             process_area(e)
-    elif t == "node":
-        blockpos = get_nodepos(e["lat"], e["lon"])
-        node_id_to_blockpos[e["id"]] = blockpos
-        if tags and ("natural" in tags or "amenity" in tags or "barrier" in tags):
-            process_node(e)
-    else:
+    #     blockpos = get_nodepos(e["lat"], e["lon"])
+    #     node_id_to_blockpos[e["id"]] = blockpos
+    #     if tags and ("natural" in tags or "amenity" in tags or "barrier" in tags):
+    #         process_node(e)
+    elif t != "node":
         print(f"Ignoring element with unknown type '{t}'")
 
 
-res_areas = []
-res_buildings = []
-res_decorations = defaultdict(list)
-res_highways = []
+
 
 
 with ThreadPoolExecutor() as executor:
+    res_areas = []
+    res_buildings = []
+    res_decorations = defaultdict(list)
+    res_highways = []
+    executor.map(process_node, data["elements"])
     executor.map(process_element, data["elements"])
-    print(f"\nfrom {min_x},{min_y} to {max_x},{max_y} (size: {max_x-min_x+1},{max_y-min_y+1})")
+print('res_areas', res_areas)
+print(f"\nfrom {min_x},{min_y} to {max_x},{max_y} (size: {max_x-min_x+1},{max_y-min_y+1})")
 
 output_data = orjson.dumps({
     "min_x": min_x,
-    "max_x": max_x,
+    "max_x": max_x, 
     "min_y": min_y,
     "max_y": max_y,
     "areas": res_areas,
     "buildings": res_buildings,
-    "decorations": res_decorations,
+    "decorations": dict(res_decorations),
     "highways": res_highways
 }, option=orjson.OPT_INDENT_2)  # Pretty-print with indentation
 
