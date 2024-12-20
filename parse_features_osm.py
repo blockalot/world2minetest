@@ -1,5 +1,5 @@
 import argparse
-import json
+import orjson
 from collections import defaultdict
 
 from pyproj import CRS, Transformer
@@ -35,7 +35,7 @@ def node_ids_to_node_positions(node_ids):
     return x_coords, y_coords
 
 
-data = json.load(args.file)
+data = orjson.load(args.file)
 
 
 min_x = None
@@ -234,7 +234,7 @@ for node in nodes:
 
 print(f"\nfrom {min_x},{min_y} to {max_x},{max_y} (size: {max_x-min_x+1},{max_y-min_y+1})")
 
-json.dump({
+orjson.dump({
     "min_x": min_x,
     "max_x": max_x,
     "min_y": min_y,
