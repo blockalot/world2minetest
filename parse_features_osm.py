@@ -134,11 +134,8 @@ def process_area(area):
     if surface is None:
         print_element("Ignored, could not determine surface:", area)
         return
-    print('success!')
     x_coords, y_coords = node_ids_to_node_positions(area["nodes"])
-    print('test2')
     update_min_max(x_coords, y_coords)
-    print('test3')
 
     with areas_lock:
         res_areas.append({"x": x_coords, "y": y_coords, "surface": surface})
@@ -247,7 +244,7 @@ with ThreadPoolExecutor() as executor:
     # but: is that really more efficient?
     executor.map(process_node, data["elements"])
     executor.map(process_element, data["elements"])
-print('res_areas', res_areas)
+
 print(f"\nfrom {min_x},{min_y} to {max_x},{max_y} (size: {max_x-min_x+1},{max_y-min_y+1})")
 
 output_data = orjson.dumps({

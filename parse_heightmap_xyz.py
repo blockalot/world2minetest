@@ -50,7 +50,7 @@ out.write(to_bytes(min_y, 4))
 out.write(to_bytes(size[0], 2))
 out.write(to_bytes(size[1], 2))
 out.write(zlib.compress(a.tobytes(), 9))
-print("heightmap", a)
+
 if args.createimg:
     print("Writing image...")
     import imageio
