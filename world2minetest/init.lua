@@ -247,7 +247,9 @@ local function generate(vm, emin, emax, minp, maxp)
         if s.id == "credit_sign" then
             minetest.set_node(s.pos, {name="default:sign_wall_steel", param2=1})
             local meta = minetest.get_meta(s.pos)
+            minetest.log('position of credit sign', s.pos)
             meta:set_string("infotext", "This world has been created with world2minetest by Florian Rädiker. See github.com/FlorianRaediker/world2minetest for the source code (AGPLv3).")
+            minetest.log('Successfully wrote text')
         else
             local info = DECORATION_SCHEMATICS[s.id]
             if info.shift_y then
