@@ -200,6 +200,8 @@ local function generate(vm, emin, emax, minp, maxp)
             if x == 0 and z == 0 then
                 -- place a sign with credits
                 if minp.y <= decoration_y and decoration_y <= maxp.y then
+                    minetest.log('Setting credit sign', s.pos)
+
                     table.insert(schematics_to_place, {pos={x=0, y=decoration_y, z=0}, id="credit_sign"})
                 end
             elseif y1_decoration_id >= 128 then
@@ -246,6 +248,7 @@ local function generate(vm, emin, emax, minp, maxp)
     for _, s in pairs(schematics_to_place) do
         if s.id == "credit_sign" then
             minetest.set_node(s.pos, {name="default:sign_wall_steel", param2=1})
+            minetest.log('Node successfully set', s.pos)
             local meta = minetest.get_meta(s.pos)
             minetest.log('position of credit sign', s.pos)
             meta:set_string("infotext", "This world has been created with world2minetest by Florian Rädiker. See github.com/FlorianRaediker/world2minetest for the source code (AGPLv3).")
