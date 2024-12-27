@@ -200,7 +200,7 @@ local function generate(vm, emin, emax, minp, maxp)
             if x == 0 and z == 0 then
                 -- place a sign with credits
                 if minp.y <= decoration_y and decoration_y <= maxp.y then
-                    minetest.log('Setting credit sign', s.pos)
+                    minetest.log('Setting credit sign')
 
                     table.insert(schematics_to_place, {pos={x=0, y=decoration_y, z=0}, id="credit_sign"})
                 end
