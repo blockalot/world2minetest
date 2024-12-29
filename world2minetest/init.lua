@@ -252,7 +252,7 @@ local function generate(vm, emin, emax, minp, maxp)
             local meta = minetest.get_meta(s.pos)
             if meta then
                 minetest.log('Meta successfully retrieved')
-                meta:set_string("infotext", "This world has been created with world2minetest by Florian Rädiker. See github.com/FlorianRaediker/world2minetest for the source code (AGPLv3).")
+                meta:set_string("infotext", "This world has been created with world2minetest by Florian Raediker. See github.com/FlorianRaediker/world2minetest for the source code (AGPLv3).")
                 minetest.log('Infotext successfully set')
             else
                 minetest.log('Failed to retrieve meta for ' .. minetest.pos_to_string(s.pos))
