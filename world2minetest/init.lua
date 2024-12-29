@@ -248,9 +248,9 @@ local function generate(vm, emin, emax, minp, maxp)
     for _, s in pairs(schematics_to_place) do
         if s.id == "credit_sign" then
             minetest.set_node(s.pos, {name="default:sign_wall_steel", param2=1})
-            minetest.log('Node successfully set' .. s.pos)
+            minetest.log('Node successfully set')
             local meta = minetest.get_meta(s.pos)
-            minetest.log('position of credit sign' .. s.pos)
+            minetest.log('retrieved meta')
             meta:set_string("infotext", "This world has been created with world2minetest by Florian Rädiker. See github.com/FlorianRaediker/world2minetest for the source code (AGPLv3).")
             minetest.log('Successfully wrote text')
         else
