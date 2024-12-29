@@ -250,9 +250,13 @@ local function generate(vm, emin, emax, minp, maxp)
             minetest.set_node(s.pos, {name="default:sign_wall_steel", param2=1})
             minetest.log('Node successfully set')
             local meta = minetest.get_meta(s.pos)
-            minetest.log('retrieved meta')
-            meta:set_string("infotext", "This world has been created with world2minetest by Florian Rädiker. See github.com/FlorianRaediker/world2minetest for the source code (AGPLv3).")
-            minetest.log('Successfully wrote text')
+            if meta then
+                minetest.log('Meta successfully retrieved')
+                meta:set_string("infotext", "This world has been created with world2minetest by Florian Rädiker. See github.com/FlorianRaediker/world2minetest for the source code (AGPLv3).")
+                minetest.log('Infotext successfully set')
+            else
+                minetest.log('Failed to retrieve meta for ' .. minetest.pos_to_string(s.pos))
+            end
         else
             local info = DECORATION_SCHEMATICS[s.id]
             if info.shift_y then
