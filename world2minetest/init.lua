@@ -248,7 +248,7 @@ local function generate(vm, emin, emax, minp, maxp)
             minetest.set_node(s.pos, {name="default:sign_wall_steel", param2=1})
             local meta = minetest.get_meta(s.pos)
             if meta then
-                local infotext = meta:set_string("infotext", "This world has been created with world2minetest by Florian Raediker. See github.com/FlorianRaediker/world2minetest for the source code (AGPLv3).")
+                local infotext = meta:set_string("text", "This world has been created with world2minetest by Florian Raediker. See github.com/FlorianRaediker/world2minetest for the source code (AGPLv3).")
             else
                 minetest.log('[w2mt] Failed to retrieve meta for ' .. minetest.pos_to_string(s.pos))
             end
