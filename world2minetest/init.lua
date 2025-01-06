@@ -248,7 +248,7 @@ local function generate(vm, emin, emax, minp, maxp)
             minetest.set_node(s.pos, {name="default:sign_wall_steel", param2=1})
             local meta = minetest.get_meta(s.pos)
             if meta then
-                local infotext = meta:set_string("text", "This world has been created with world2minetest by Florian Raediker. See github.com/FlorianRaediker/world2minetest for the source code (AGPLv3).")
+                local infotext = meta:set_string("text", "This world has been created with world2minetest by Florian Raediker. See github.com/FlorianRaediker/world2minetest for the original source code (AGPLv3). The source code has been edited and customized by the Blockalot team. The forked repository is available under https://github.com/blockalot/world2minetest. The data for this map comes from the Open Street Map Api and is available via the Open Database License. For more information visit openstreetmap.org/copyright. The heightmap is based on data from the LGL: www.lgl-bw.de, dl-de/by-2-0")
             else
                 minetest.log('[w2mt] Failed to retrieve meta for ' .. minetest.pos_to_string(s.pos))
             end
