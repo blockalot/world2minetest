@@ -4,6 +4,7 @@ local air = minetest.get_content_id("air")
 local silver_sand = minetest.get_content_id("default:silver_sand")
 local dirt = minetest.get_content_id("default:dirt")
 local stone = minetest.get_content_id("default:stone")
+local gravel = minetest.get_content_id("default:gravel")
 local silver_sandstone_block = minetest.get_content_id("default:silver_sandstone_block")
 local stone_block = minetest.get_content_id("default:stone_block")
 local stone_brick = minetest.get_content_id("default:stonebrick")
@@ -39,12 +40,12 @@ local SURFACE_IDS = {
     [5] = dirt, -- dirt
     -- highway
     [10] = stone, -- default
-    [11] = stone, -- footway
+    [11] = gravel, -- footway
     [12] = stone, -- service
     [13] = stone, -- cycleway
-    [14] = stone, -- pedestrian
+    [14] = gravel, -- pedestrian
     [15] = stone, -- residential
-    [16] = stone, -- path
+    [16] = gravel, -- path
     -- leisure
     [20] = dirt_with_grass, -- default
     [21] = dirt_with_grass, -- park
