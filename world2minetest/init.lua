@@ -30,7 +30,7 @@ local brick = minetest.get_content_id("default:brick")
 local wood = minetest.get_content_id("default:wood")
 
 local SURFACE_IDS = {
-    [0] = dirt, -- default
+    [0] = dirt_with_grass, -- default
     --surface
     [1] = stone_brick, -- paving stones
     [2] = gravel, -- fine gravel
