@@ -39,7 +39,7 @@ local SURFACE_IDS = {
     [4] = obsidian, -- asphalt
     [5] = dirt, -- dirt
     -- highway
-    [10] = stone, -- default
+    [10] = gravel, -- default
     [11] = gravel, -- footway
     [12] = stone, -- service
     [13] = stone, -- cycleway
