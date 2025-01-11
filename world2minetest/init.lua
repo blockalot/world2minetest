@@ -3,6 +3,7 @@ minetest.set_mapgen_setting("mg_name", "singlenode", true)
 local air = minetest.get_content_id("air")
 local silver_sand = minetest.get_content_id("default:silver_sand")
 local dirt = minetest.get_content_id("default:dirt")
+local landuse = minetest.get_content_id("farming:soil")
 local stone = minetest.get_content_id("default:stone")
 local gravel = minetest.get_content_id("default:gravel")
 local silver_sandstone_block = minetest.get_content_id("default:silver_sandstone_block")
@@ -39,12 +40,12 @@ local SURFACE_IDS = {
     [4] = obsidian, -- asphalt
     [5] = dirt, -- dirt
     -- highway
-    [10] = gravel, -- default
+    [10] = stone, -- default
     [11] = gravel, -- footway
     [12] = stone, -- service
     [13] = stone, -- cycleway
     [14] = gravel, -- pedestrian
-    [15] = stone, -- residential
+    [15] = gravel, -- residential
     [16] = gravel, -- path
     -- leisure
     [20] = dirt_with_grass, -- default
