@@ -58,7 +58,7 @@ local SURFACE_IDS = {
     [31] = stone_block, -- school
     [32] = stone, -- parking
     -- landuse
-    [40] = dirt, -- default
+    [40] = landuse, -- default
     [41] = cobblestone, -- residential_landuse
     [42] = dirt_with_grass, -- village_green
     -- natural
