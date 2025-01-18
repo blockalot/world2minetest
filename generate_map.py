@@ -252,6 +252,22 @@ else:
                 height = 6
         ground_z = int(round(a[yy, xx, 0].mean()))
         assert 0 <= ground_z <= 255
+        roof_height = building.get("roof_height", 3)  # Default to 3m for roof height
+        total_height = height + roof_height
+
+        # Adjust roof type logic (e.g., flat, gabled, or other types)
+        roof_type = building.get("roof_type", "flat")
+        if roof_type == "gabled":
+            # Example of a gabled roof: peak is added at the center
+            roof_peak = ground_z + total_height
+            center_x, center_y = np.mean(xx), np.mean(yy)
+            a[int(center_y), int(center_x), 3] = roof_peak
+        elif roof_type == "flat":
+            # Flat roof simply raises the entire building height
+            a[yy, xx, 3] = ground_z + total_height
+        else:
+            # Default to flat roof if type is unrecognized
+            a[yy, xx, 3] = ground_z + total_height
         a[yy, xx, 0] = ground_z
         if ground_z >= 128:
             a[yy, xx, 2] = min(ground_z, ground_z + 127)
@@ -260,9 +276,9 @@ else:
         if height is not None and building.get("is_part"):
             # only overwrite height if it is likely from the same building
             assert height >= 1
-            a[yy, xx, 3] = ground_z + height
+            a[yy, xx, 3] = ground_z + total_height
         else:
-            a[yy, xx, 3] = np.maximum(a[yy, xx, 3], ground_z + (height or 1))
+            a[yy, xx, 3] = np.maximum(a[yy, xx, 3], ground_z + (total_height or 1))
 
 for highway in features["highways"]:
     x_coords, y_coords = shift_coords(highway["x"], highway["y"])

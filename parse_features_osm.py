@@ -73,31 +73,61 @@ def process_building(building):
     x_coords, y_coords = node_ids_to_node_positions(building["nodes"])
     if len(x_coords) < 2:
         print_element(f"Ignored, only {len(x_coords)} nodes:", building)
+
     tags = building["tags"]
     material = None
+    roof_type = tags.get("roof:type", "flat")  # Default to flat roof
+    roof_height = None
+
+    if "roof:height" in tags:
+        try:
+            roof_height = int(float(tags["roof:height"]))
+        except ValueError:
+            print_element("Invalid roof:height", building)
+            roof_height = None
+    elif 'roof:levels':
+        try:
+            roof_levels = int(float(tags["roof:height"]))
+        except ValueError:
+            print_element("Invalid roof:height", building)
+            roof_levels = None
+        
     if "building:material" in tags:
         if tags["building:material"] == "brick":
             material = "brick"
         else:
             print_element("Unrecognized building:material", building)
     is_building_part = "building:part" in tags
+
     try:
         levels = int(tags["building:levels"])
     except (KeyError, ValueError):
         levels = None
+
     try:
         height = int(float(tags["height"]))
     except (KeyError, ValueError):
         height = None
     else:
         height = min(height, 255)
-    b = {"x": x_coords, "y": y_coords, "is_part": is_building_part}
+    
+    b = {
+        "x": x_coords, 
+        "y": y_coords, 
+        "is_part": is_building_part, 
+        "roof_type": roof_type
+    }
+
     if height is not None:
         b["height"] = height
     if levels is not None:
         b["levels"] = levels
     if material is not None:
         b["material"] = material
+    if roof_height is not None:
+        b["roof_height"] = roof_height
+    if roof_levels is not None:
+        b['roof_levels'] = roof_levels
     
     with buildings_lock:
         res_buildings.append(b)
