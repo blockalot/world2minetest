@@ -28,14 +28,29 @@ local cobblestone_wall = minetest.get_content_id("walls:cobble")
 local desert_cobble_wall = minetest.get_content_id("walls:desertcobble")
 local gate = minetest.get_content_id("doors:gate_wood_closed")
 local grass = minetest.get_content_id("default:grass_3")
+local wood = minetest.get_content_id("default:wood")
 local roof_1 = minetest.get_content_id("stairs:slab_stone")
 local roof_2 = minetest.get_content_id("stairs:slab_aspen_woodf")
 local roof_3 = minetest.get_content_id("stairs:slab_desert_sandstone_block")
 local roof_4 = minetest.get_content_id("stairs:slab_desert_stone_block")
 local roof_5 = minetest.get_content_id("stairs:slab_sandstone_block")
-local roof_5 = minetest.get_content_id("stairs:bronze_block")
-local roof_5 = minetest.get_content_id("stairs:obsidian_block")
-local wood = minetest.get_content_id("default:wood")
+local roof_6 = minetest.get_content_id("stairs:bronze_block")
+local roof_7 = minetest.get_content_id("stairs:obsidian_block")
+
+local roof_list = {
+    minetest.get_content_id("stairs:slab_stone"),
+    minetest.get_content_id("stairs:slab_aspen_woodf"),
+    minetest.get_content_id("stairs:slab_desert_sandstone_block"),
+    minetest.get_content_id("stairs:slab_desert_stone_block"),
+    minetest.get_content_id("stairs:slab_sandstone_block"),
+    minetest.get_content_id("stairs:bronze_block"),
+    minetest.get_content_id("stairs:obsidian_block"),
+}
+
+-- 2) A small helper function to pick one at random:
+local function get_random_roof()
+    return roof_list[math.random(#roof_list)]
+end
 
 local SURFACE_IDS = {
     [0] = dirt_with_grass, -- default
@@ -234,7 +249,7 @@ local function generate(vm, emin, emax, minp, maxp)
                 if has_roof then
                     local roof_y = y2_max_building+1
                     if minp.y <= roof_y and roof_y <= maxp.y then
-                        vdata[i] = brick
+                        vdata[i] = get_random_roof()
                     end
                 end
             else
