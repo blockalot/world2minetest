@@ -36,11 +36,7 @@ local roof_4 = minetest.get_content_id("stairs:slab_desert_stone_block")
 local roof_5 = minetest.get_content_id("stairs:slab_sandstone_block")
 
 local roof_list = {
-    roof_1,
-    roof_2,
-    roof_3,
     roof_4,
-    roof_5
 }
 
 -- 2) A small helper function to pick one at random:
