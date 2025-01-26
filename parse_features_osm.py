@@ -76,22 +76,7 @@ def process_building(building):
 
     tags = building["tags"]
     material = None
-    roof_type = tags.get("roof:type", "flat")  # Default to flat roof
-    roof_height = None
 
-    if "roof:height" in tags:
-        try:
-            roof_height = int(float(tags["roof:height"]))
-        except ValueError:
-            print_element("Invalid roof:height", building)
-            roof_height = None
-    elif 'roof:levels':
-        try:
-            roof_levels = int(float(tags["roof:height"]))
-        except ValueError:
-            print_element("Invalid roof:height", building)
-            roof_levels = None
-        
     if "building:material" in tags:
         if tags["building:material"] == "brick":
             material = "brick"
@@ -115,7 +100,6 @@ def process_building(building):
         "x": x_coords, 
         "y": y_coords, 
         "is_part": is_building_part, 
-        "roof_type": roof_type
     }
 
     if height is not None:
@@ -124,11 +108,8 @@ def process_building(building):
         b["levels"] = levels
     if material is not None:
         b["material"] = material
-    if roof_height is not None:
-        b["roof_height"] = roof_height
-    if roof_levels is not None:
-        b['roof_levels'] = roof_levels
     
+    print('building successfully parsed')
     with buildings_lock:
         res_buildings.append(b)
 
