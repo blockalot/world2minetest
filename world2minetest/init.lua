@@ -34,8 +34,8 @@ local roof_2 = minetest.get_content_id("stairs:slab_aspen_wood")
 local roof_3 = minetest.get_content_id("stairs:slab_desert_sandstone_block")
 local roof_4 = minetest.get_content_id("stairs:slab_desert_stone_block")
 local roof_5 = minetest.get_content_id("stairs:slab_sandstone_block")
-local roof_6 = minetest.get_content_id("stairs:bronze_block")
-local roof_7 = minetest.get_content_id("stairs:obsidian_block")
+local roof_6 = minetest.get_content_id("stairs:slab_bronze_block")
+local roof_7 = minetest.get_content_id("stairs:slab_obsidian_block")
 
 local roof_list = {
     minetest.get_content_id("stairs:slab_stone"),
