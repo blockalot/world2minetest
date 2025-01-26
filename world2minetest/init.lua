@@ -36,13 +36,11 @@ local roof_4 = minetest.get_content_id("stairs:slab_desert_stone_block")
 local roof_5 = minetest.get_content_id("stairs:slab_sandstone_block")
 
 local roof_list = {
-    minetest.get_content_id("stairs:slab_stone"),
-    minetest.get_content_id("stairs:slab_aspen_woodf"),
-    minetest.get_content_id("stairs:slab_desert_sandstone_block"),
-    minetest.get_content_id("stairs:slab_desert_stone_block"),
-    minetest.get_content_id("stairs:slab_sandstone_block"),
-    minetest.get_content_id("stairs:bronze_block"),
-    minetest.get_content_id("stairs:obsidian_block"),
+    roof_1,
+    roof_2,
+    roof_3,
+    roof_4,
+    roof_5
 }
 
 -- 2) A small helper function to pick one at random:
