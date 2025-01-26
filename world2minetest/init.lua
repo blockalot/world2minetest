@@ -194,6 +194,7 @@ local function generate(vm, emin, emax, minp, maxp)
     vm:get_data(vdata)
     local va = VoxelArea:new{MinEdge = emin, MaxEdge = emax}
     local schematics_to_place = {}
+    local roof = get_random_roof()
     for x = minp.x, maxp.x do
         for z = minp.z, maxp.z do
             local i = va:index(x, minp.y, z)
@@ -229,6 +230,7 @@ local function generate(vm, emin, emax, minp, maxp)
                     has_roof = true
                 else
                     has_roof = false
+                    roof = get_random_roof()
                 end
                 y1_decoration_id = floor_height+y1_decoration_id-127
                 y2_max_building = floor_height+y2_max_building
@@ -245,7 +247,7 @@ local function generate(vm, emin, emax, minp, maxp)
                 if has_roof then
                     local roof_y = y2_max_building+1
                     if minp.y <= roof_y and roof_y <= maxp.y then
-                        vdata[i] = get_random_roof()
+                        vdata[i] = roof
                     end
                 end
             else
