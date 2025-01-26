@@ -241,7 +241,9 @@ else:
         elif len(x_coords) == 2:
             xx, yy = skimage.draw.line(x_coords[0], y_coords[0], x_coords[1], y_coords[1])
         else:
-            xx, yy = skimage.draw.polygon(x_coords, y_coords)
+            xx, yy = skimage.draw.polygon_perimeter(x_coords, y_coords)
+            xxx, yyy = skimage.draw.polygon(x_coords, y_coords)
+            
         height = building.get("height")
         if height is None:
             height = building.get("levels")
@@ -255,15 +257,19 @@ else:
                 
         a[yy, xx, 0] = ground_z
         if ground_z >= 128:
-            a[yy, xx, 2] = min(ground_z, ground_z + 127)
+            a[yyy, xxx, 2] = min(ground_z, ground_z + 127)
+            a[yy, xx, 2] = min(ground_z, ground_z)
         else:
-            a[yy, xx, 2] = 127 + ground_z + 1
+            a[yyy, xxx, 2] = 127 + ground_z + 1
+            a[yy, xx, 2] = ground_z + 1
         if height is not None and building.get("is_part"):
             # only overwrite height if it is likely from the same building
             assert height >= 1
-            a[yy, xx, 3] = ground_z + height + 127
+            a[yyy, xxx, 3] = ground_z + height + 127
+            a[yy, xx, 3] = ground_z + height
         else:
-            a[yy, xx, 3] = np.maximum(a[yy, xx, 3], ground_z + (height or 1)) + 127
+            a[yyy, xxx, 3] = np.maximum(a[yyy, xxx, 3], ground_z + (height or 1)) + 127
+            a[yy, xx, 3] = np.maximum(a[yy, xx, 3], ground_z + (height or 1))
 
 for highway in features["highways"]:
     x_coords, y_coords = shift_coords(highway["x"], highway["y"])
