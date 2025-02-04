@@ -257,8 +257,8 @@ else:
                 
         a[yy, xx, 0] = ground_z
         if ground_z >= 128:
-            a[yyy, xxx, 2] = np.minimum(ground_z, ground_z + 127)
-            a[yy, xx, 2] = np.minimum(ground_z, ground_z)
+            a[yyy, xxx, 2] = min(ground_z, ground_z + 127)
+            a[yy, xx, 2] = min(ground_z, ground_z)
         else:
             a[yyy, xxx, 2] = np.minimum(255, 127 + ground_z + 1)
             a[yy, xx, 2] = ground_z + 1
