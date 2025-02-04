@@ -266,7 +266,10 @@ else:
             # only overwrite height if it is likely from the same building
             assert height >= 1
             a[yy, xx, 3] = np.minimum(255,ground_z + height)
+            a[yyy, xxx, 3] = np.minimum(255,ground_z + height + 127)
+
         else:
+            a[yyy, xxx, 3] = np.minimum(255,np.maximum(a[yyy, xxx, 3], np.minimum(255,ground_z + (height or 1))) + 127)
             a[yy, xx, 3] = np.maximum(a[yy, xx, 3], np.minimum(255,ground_z + (height or 1)))
 
 for highway in features["highways"]:
