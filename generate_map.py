@@ -267,7 +267,6 @@ else:
             assert height >= 1
             a[yy, xx, 3] = min(255,ground_z + height)
         else:
-            a[yyy, xxx, 3] = np.maximum(a[yyy, xxx, 3], ground_z + (height or 1)) + 127
             a[yy, xx, 3] = np.maximum(a[yy, xx, 3], ground_z + (height or 1))
 
 for highway in features["highways"]:
