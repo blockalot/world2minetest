@@ -258,15 +258,15 @@ else:
         a[yy, xx, 0] = ground_z
         if ground_z >= 128:
             a[yyy, xxx, 2] = min(ground_z, ground_z + 127)
-            a[yy, xx, 2] = min(ground_z, ground_z)
+            a[yy, xx, 2] = ground_z
         else:
             a[yyy, xxx, 2] = np.minimum(255, 127 + ground_z + 1)
             a[yy, xx, 2] = ground_z + 1
         if height is not None and building.get("is_part"):
             # only overwrite height if it is likely from the same building
             assert height >= 1
-            a[yy, xx, 3] = np.minimum(255,ground_z + height)
             a[yyy, xxx, 3] = np.minimum(255,ground_z + height + 127)
+            a[yy, xx, 3] = np.minimum(255,ground_z + height)
 
         else:
             a[yyy, xxx, 3] = np.minimum(255,np.maximum(a[yyy, xxx, 3], np.minimum(255,ground_z + (height or 1))) + 127)
