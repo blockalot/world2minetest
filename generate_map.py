@@ -266,7 +266,7 @@ else:
             a[yyy, xxx, 3] = np.minimum(255,ground_z + height + 127)
 
         else:
-            a[yyy, xxx, 3] = np.minimum(255,np.maximum(a[yyy, xxx, 3], np.minimum(255,ground_z + (height or 1))) + 127)
+            a[yyy, xxx, 3] = np.maximum(a[yyy, xxx, 3], np.minimum(255,ground_z + (height or 1) + 127))
 
 for highway in features["highways"]:
     x_coords, y_coords = shift_coords(highway["x"], highway["y"])

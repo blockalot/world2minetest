@@ -226,7 +226,6 @@ local function generate(vm, emin, emax, minp, maxp)
                     has_roof = true
                 else
                     has_roof = false
-                    roof = get_random_roof()
                 end
                 y1_decoration_id = floor_height+y1_decoration_id-127
                 y2_max_building = floor_height+y2_max_building
