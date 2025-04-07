@@ -60,6 +60,7 @@ local SURFACE_IDS = {
     [14] = gravel, -- pedestrian
     [15] = gravel, -- residential
     [16] = gravel, -- path
+    [17] = gold, -- path
     -- leisure
     [20] = dirt_with_grass, -- default
     [21] = dirt_with_grass, -- park

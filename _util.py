@@ -30,6 +30,7 @@ SURFACES = {
     "pedestrian": 14,
     "residential": 15,
     "path": 16,
+    "rail": 17,
 
     "leisure": 20,  # default
     "park": 21,

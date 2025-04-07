@@ -154,10 +154,14 @@ def process_area(area):
 def process_highway(highway):
     tags = highway["tags"]
 
-    if tags["highway"] in SURFACES:
+    if "railway" in tags:
+        surface = "railway"
+    elif tags["highway"] in SURFACES:
         surface = tags["highway"]
     elif "surface" in tags and tags["surface"] in SURFACES:
         surface = tags["surface"]
+        print(highway)
+        print("railway", highway)
     else:
         surface = "highway"
         print_element("Default highway:", highway)
@@ -182,6 +186,32 @@ def process_highway(highway):
     update_min_max(x_coords, y_coords)
     with highways_lock:
         res_highways.append({"x": x_coords, "y": y_coords, "surface": surface, "layer": layer, "type": tags["highway"]})
+
+def process_railway(railway):
+    tags = railway["tags"]
+
+    layer = tags.get("layer", 0)
+    try:
+        layer = int(layer)
+    except ValueError:
+        layer = 0
+    if "tunnel" in tags and tags["tunnel"] != "building_passage":
+        if "layer" in tags:
+            try:
+                layer = int(tags["layer"])
+            except ValueError:
+                layer = -1
+            if layer > 0:
+                layer = 0
+        else:
+            layer = -1
+
+    x_coords, y_coords = node_ids_to_node_positions(railway["nodes"])
+    update_min_max(x_coords, y_coords)
+    with highways_lock:
+        res_highways.append({"x": x_coords, "y": y_coords, "surface": "railway", "layer": layer, "type": "railway"})
+
+
 
 def process_node(e):
     t = e["type"]
@@ -216,6 +246,8 @@ def process_node(e):
         res_decorations[deco].append({"x": x, "y": y})
 
 def process_element(e):
+    if e["id"] == 63950590:
+        print("one railway")
     t = e["type"]
     tags = e.get("tags")
     if t == "way":
@@ -226,6 +258,8 @@ def process_element(e):
             process_area(e)
         elif "highway" in tags:
             process_highway(e)
+        elif "railway" in tags:
+            process_railway(e)
         elif "building" in tags or "building:part" in tags:
             process_building(e)
         elif "barrier" in tags:
