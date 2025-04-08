@@ -175,15 +175,7 @@ def process_highway(highway):
         layer = 0
     if "tunnel" in tags and tags["tunnel"] != "building_passage":
         return
-        if "layer" in tags:
-            try:
-                layer = int(tags["layer"])
-            except ValueError:
-                layer = -1
-            if layer > 0:
-                layer = 0
-        else:
-            layer = -1
+
 
     x_coords, y_coords = node_ids_to_node_positions(highway["nodes"])
     update_min_max(x_coords, y_coords)
@@ -200,15 +192,7 @@ def process_railway(railway):
         layer = 0
     if "tunnel" in tags and tags["tunnel"] != "building_passage":
         return
-        if "layer" in tags:
-            try:
-                layer = int(tags["layer"])
-            except ValueError:
-                layer = -1
-            if layer > 0:
-                layer = 0
-        else:
-            layer = -1
+
 
     x_coords, y_coords = node_ids_to_node_positions(railway["nodes"])
     update_min_max(x_coords, y_coords)
