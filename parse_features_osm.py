@@ -142,6 +142,8 @@ def process_area(area):
             surface = tags["landuse"]
         else:
             surface = "landuse"
+    elif "railway" in tags:
+        surface = "railway"
     if surface is None:
         print_element("Ignored, could not determine surface:", area)
         return
@@ -172,6 +174,7 @@ def process_highway(highway):
     except ValueError:
         layer = 0
     if "tunnel" in tags and tags["tunnel"] != "building_passage":
+        return
         if "layer" in tags:
             try:
                 layer = int(tags["layer"])
@@ -196,6 +199,7 @@ def process_railway(railway):
     except ValueError:
         layer = 0
     if "tunnel" in tags and tags["tunnel"] != "building_passage":
+        return
         if "layer" in tags:
             try:
                 layer = int(tags["layer"])
