@@ -11,6 +11,7 @@ from _util import SURFACES, DECORATIONS
 parser = argparse.ArgumentParser(description="Parse OSM data")
 parser.add_argument("file", type=argparse.FileType("r", encoding="utf-8"), help="GeoJSON file with OSM data")
 parser.add_argument("--output", "-o", type=argparse.FileType("w"), help="Output file. Defaults to parsed_data/features_osm.json", default="./parsed_data/features_osm.json")
+parser.add_argument("--crs", "-c", type=int, help="Coordinates Reference system, needs to be cartesian and the same as the one coordinate given later to generate_map.py", default=25832)
 
 args = parser.parse_args()
 
@@ -21,7 +22,7 @@ decorations_lock = threading.Lock()
 highways_lock = threading.Lock()
 
 # transform EPSG:4326 to EPSG:25832
-transform_coords = Transformer.from_crs(CRS.from_epsg(4326), CRS.from_epsg(25832)).transform
+transform_coords = Transformer.from_crs(CRS.from_epsg(4326), CRS.from_epsg(args.crs)).transform
 def get_nodepos(lat, lon):
     x, y = transform_coords(lat, lon)
     return int(round(x)), int(round(y))
@@ -143,7 +144,10 @@ def process_area(area):
         else:
             surface = "landuse"
     elif "railway" in tags:
-        surface = "railway"
+        if tags["railway"] in ["rail", "tram"]:
+            surface = "rail_track"
+        else:
+            surface = "railway_misc"
     if surface is None:
         print_element("Ignored, could not determine surface:", area)
         return
@@ -156,9 +160,7 @@ def process_area(area):
 def process_highway(highway):
     tags = highway["tags"]
 
-    if "railway" in tags:
-        surface = "railway"
-    elif tags["highway"] in SURFACES:
+    if tags["highway"] in SURFACES:
         surface = tags["highway"]
     elif "surface" in tags and tags["surface"] in SURFACES:
         surface = tags["surface"]
@@ -184,7 +186,10 @@ def process_highway(highway):
 
 def process_railway(railway):
     tags = railway["tags"]
-
+    if tags["railway"] in ["rail", "tram"]:
+        surface = "rail_track"
+    else:
+        surface = "railway_misc"
     layer = tags.get("layer", 0)
     try:
         layer = int(layer)
@@ -197,7 +202,7 @@ def process_railway(railway):
     x_coords, y_coords = node_ids_to_node_positions(railway["nodes"])
     update_min_max(x_coords, y_coords)
     with highways_lock:
-        res_highways.append({"x": x_coords, "y": y_coords, "surface": "railway", "layer": layer, "type": "railway"})
+        res_highways.append({"x": x_coords, "y": y_coords, "surface": surface, "layer": layer, "type": "railway"})
 
 
 
@@ -234,8 +239,6 @@ def process_node(e):
         res_decorations[deco].append({"x": x, "y": y})
 
 def process_element(e):
-    if e["id"] == 63950590:
-        print("one railway")
     t = e["type"]
     tags = e.get("tags")
     if t == "way":

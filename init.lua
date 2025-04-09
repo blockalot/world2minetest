@@ -1,5 +1,7 @@
 minetest.set_mapgen_setting("mg_name", "singlenode", true)
 
+
+-- One can find some ids here: https://appgurueu.github.io/online_craftguide/
 local air = minetest.get_content_id("air")
 local silver_sand = minetest.get_content_id("default:silver_sand")
 local dirt = minetest.get_content_id("default:dirt")
@@ -34,6 +36,7 @@ local roof_2 = minetest.get_content_id("stairs:slab_aspen_wood")
 local roof_3 = minetest.get_content_id("stairs:slab_desert_sandstone_block")
 local roof_4 = minetest.get_content_id("stairs:slab_desert_stone_block")
 local roof_5 = minetest.get_content_id("stairs:slab_sandstone_block")
+local rail  = minetest.get_content_id("carts:rail")
 
 local roof_list = {
     roof_4,
@@ -60,7 +63,8 @@ local SURFACE_IDS = {
     [14] = gravel, -- pedestrian
     [15] = gravel, -- residential
     [16] = gravel, -- path
-    [17] = gold_block, -- path
+    [17] = rail, -- rail_track
+    [18] = gold_block, -- rail_misc
     -- leisure
     [20] = dirt_with_grass, -- default
     [21] = dirt_with_grass, -- park
