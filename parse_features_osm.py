@@ -202,7 +202,7 @@ def process_railway(railway):
     x_coords, y_coords = node_ids_to_node_positions(railway["nodes"])
     update_min_max(x_coords, y_coords)
     with highways_lock:
-        res_highways.append({"x": x_coords, "y": y_coords, "surface": surface, "layer": layer, "type": "railway"})
+        res_highways.append({"x": x_coords, "y": y_coords, "surface": surface, "layer": layer, "type": surface})
 
 
 

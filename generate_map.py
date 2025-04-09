@@ -19,7 +19,8 @@ HIGHWAY_WIDTHS = {
     "residential": 5,
     "path": 3,
     "primary": 6,
-    "secondary": 6
+    "secondary": 6,
+    "rail_track": 1
 }
 
 
