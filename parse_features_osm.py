@@ -146,6 +146,8 @@ def process_area(area):
     elif "railway" in tags:
         if tags["railway"] in ["rail", "tram"]:
             surface = "rail_track"
+        elif tags["railway"] in ["abandoned", "construction", "proposed"]: #theses shouldn't be included
+            return
         else:
             surface = "railway_misc"
     if surface is None:
@@ -159,13 +161,12 @@ def process_area(area):
 
 def process_highway(highway):
     tags = highway["tags"]
-
-    if tags["highway"] in SURFACES:
+    if tags["railway"] in ["abandoned", "construction", "proposed"]: #theses shouldn't be included
+        return
+    elif tags["highway"] in SURFACES:
         surface = tags["highway"]
     elif "surface" in tags and tags["surface"] in SURFACES:
         surface = tags["surface"]
-        print(highway)
-        print("railway", highway)
     else:
         surface = "highway"
         print_element("Default highway:", highway)
@@ -186,21 +187,25 @@ def process_highway(highway):
 
 def process_railway(railway):
     tags = railway["tags"]
-    if tags["railway"] in ["rail", "tram"]:
-        surface = "rail_track"
-    else:
-        surface = "railway_misc"
     layer = tags.get("layer", 0)
     try:
         layer = int(layer)
     except ValueError:
         layer = 0
+    if tags["railway"] in ["rail", "tram"]:
+        surface = "rail_track"
+        layer += 1 #other wise they look they are below their surrounding
+    elif tags["railway"] in ["abandoned", "construction", "proposed"]: #theses shouldn't be included
+        return
+    else:
+        surface = "railway_misc"
     if "tunnel" in tags and tags["tunnel"] != "building_passage":
         return
 
 
     x_coords, y_coords = node_ids_to_node_positions(railway["nodes"])
     update_min_max(x_coords, y_coords)
+    #append to highways, because they are treated the same way when generating the map
     with highways_lock:
         res_highways.append({"x": x_coords, "y": y_coords, "surface": surface, "layer": layer, "type": surface})
 
