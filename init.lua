@@ -221,7 +221,11 @@ local function generate(vm, emin, emax, minp, maxp)
             if x == 0 and z == 0 then
                 -- place a sign with credits
                 if minp.y <= decoration_y and decoration_y <= maxp.y then
-                    table.insert(schematics_to_place, {pos={x=0, y=decoration_y, z=0}, id="credit_sign"})
+                    table.insert(schematics_to_place, {pos={x=0, y=decoration_y, z=0}, id="credit_sign_mod"})
+                end
+                -- place a sign with credits
+                if minp.y <= decoration_y and decoration_y <= maxp.y then
+                    table.insert(schematics_to_place, {pos={x=0, y=decoration_y, z=0}, id="credit_sign_data"})
                 end
             elseif y1_decoration_id >= 128 then
                 -- there's a building here
@@ -265,11 +269,19 @@ local function generate(vm, emin, emax, minp, maxp)
 
     vm:set_data(vdata)
     for _, s in pairs(schematics_to_place) do
-        if s.id == "credit_sign" then
+        if s.id == "credit_sign_mod" then
             minetest.set_node(s.pos, {name="default:sign_wall_steel", param2=1})
             local meta = minetest.get_meta(s.pos)
             if meta then
-                local infotext = meta:set_string("text", "This world has been created with world2minetest by Florian Raediker. See github.com/FlorianRaediker/world2minetest for the original source code (AGPLv3). The source code has been edited and customized by the Blockalot team. The forked repository is available under https://github.com/blockalot/world2minetest. The data for this map comes from the Open Street Map Api and is available via the Open Database License. For more information visit openstreetmap.org/copyright. The heightmap is based on data from the LGL: www.lgl-bw.de, dl-de/by-2-0")
+                local infotext = meta:set_string("text", "This world has been created with world2minetest by Florian Raediker. See github.com/FlorianRaediker/world2minetest for the original source code (AGPLv3). The source code has been edited and customized by the Blockalot team. The forked repository is available under https://github.com/blockalot/world2minetest.")
+            else
+                minetest.log('[w2mt] Failed to retrieve meta for ' .. minetest.pos_to_string(s.pos))
+            end
+        if s.id == "credit_sign_data" then
+            minetest.set_node(s.pos, {name="default:sign_wall_steel", param2=1})
+            local meta = minetest.get_meta(s.pos)
+            if meta then
+                local infotext = meta:set_string("text", "The data for this map comes from the Open Street Map Api and is available via the Open Database License. For more information visit openstreetmap.org/copyright. The heightmap is based on data from the LGL: www.lgl-bw.de, dl-de/by-2-0")
             else
                 minetest.log('[w2mt] Failed to retrieve meta for ' .. minetest.pos_to_string(s.pos))
             end
