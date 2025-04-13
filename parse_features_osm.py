@@ -51,6 +51,7 @@ min_x = None
 max_x = None
 min_y = None
 max_y = None
+RAIL_TYPES = ["rail", "tram", "light_rail", "subway", "funicular"]
 
 def update_min_max(x_coords, y_coords):
     global min_x, max_x, min_y, max_y
@@ -144,10 +145,8 @@ def process_area(area):
         else:
             surface = "landuse"
     elif "railway" in tags:
-        if tags["railway"] in ["rail", "tram"]:
+        if tags["railway"] in RAIL_TYPES:
             surface = "rail_track"
-        elif tags["railway"] in ["abandoned", "construction", "proposed"]: #theses shouldn't be included
-            return
         else:
             surface = "railway_misc"
     if surface is None:
@@ -161,9 +160,7 @@ def process_area(area):
 
 def process_highway(highway):
     tags = highway["tags"]
-    if tags["railway"] in ["abandoned", "construction", "proposed"]: #theses shouldn't be included
-        return
-    elif tags["highway"] in SURFACES:
+    if tags["highway"] in SURFACES:
         surface = tags["highway"]
     elif "surface" in tags and tags["surface"] in SURFACES:
         surface = tags["surface"]
@@ -192,7 +189,7 @@ def process_railway(railway):
         layer = int(layer)
     except ValueError:
         layer = 0
-    if tags["railway"] in ["rail", "tram"]:
+    if tags["railway"] in RAIL_TYPES:
         surface = "rail_track"
         layer += 1 #other wise they look they are below their surrounding
     elif tags["railway"] in ["abandoned", "construction", "proposed"]: #theses shouldn't be included

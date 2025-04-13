@@ -225,7 +225,7 @@ local function generate(vm, emin, emax, minp, maxp)
                 end
                 -- place a sign with credits
                 if minp.y <= decoration_y and decoration_y <= maxp.y then
-                    table.insert(schematics_to_place, {pos={x=0, y=decoration_y, z=0}, id="credit_sign_data"})
+                    table.insert(schematics_to_place, {pos={x=0, y=decoration_y, z=1}, id="credit_sign_data"})
                 end
             elseif y1_decoration_id >= 128 then
                 -- there's a building here
@@ -277,7 +277,7 @@ local function generate(vm, emin, emax, minp, maxp)
             else
                 minetest.log('[w2mt] Failed to retrieve meta for ' .. minetest.pos_to_string(s.pos))
             end
-        if s.id == "credit_sign_data" then
+        elseif s.id == "credit_sign_data" then
             minetest.set_node(s.pos, {name="default:sign_wall_steel", param2=1})
             local meta = minetest.get_meta(s.pos)
             if meta then
